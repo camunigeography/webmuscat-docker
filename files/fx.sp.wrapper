@@ -1,0 +1,43 @@
+#!/bin/bash
+
+/lib/ld-linux.so.2 ./fx.sp
+
+
+# Enable core dumps in shell; see: https://medium.com/@sourabhedake/core-dumps-how-to-enable-them-73856a437711
+#ulimit -S -c unlimited
+#ulimit -S -c 0				# Disable core dumps
+# Core dump is now in /var/lib/apport/coredump/
+
+
+# Notes:
+# 
+# This was difficult to get running, as Muscat is so ancient.
+# 
+# Basically this wrapper file forces the fx.sp executable to run in 32-bit mode (hence /lib/ld-linux.so.2).
+# 
+# See: http://tldp.org/HOWTO/Program-Library-HOWTO/shared-libraries.html#AEN80
+# See: http://askubuntu.com/questions/231479/no-such-file-when-running-a-32-bit-program-on-a-64-bit-system
+# 
+# It also requires the i386 architecture to be added, as described at: http://askubuntu.com/a/454254
+# dpkg --add-architecture i386
+# sudo apt-get update
+# sudo apt-get install libc6:i386
+# Note that Ubuntu used to have a package ia32-libs (which installs lots of unnecessary packages) but this is deprecated towards the above approach which is much more specific; see: http://www.markusbe.com/2009/09/about-running-32-bit-programs-on-64-bit-ubuntu-and-shared-libraries/
+# 
+# The following was useful for debugging:
+# cd /websites/www.spri.cam.ac.uk/cgi-bin-private
+# ltrace ./fx-main.s
+# mvl22@webserver:/websites/www.spri.cam.ac.uk/cgi-bin-private$ ldd fx-main.sp
+#   which should return something like the following; NB linux-gate.so.1 is a virtual DSO, not a real file: http://www.trilithium.com/johan/2005/08/linux-gate/
+#     linux-gate.so.1 =>  (0xf770b000)
+#     libdl.so.1 => /lib/libdl.so.1 (0xf76f7000)
+#     libc.so.5 => /lib/libc.so.5 (0xf762e000)
+
+
+# Subsequent note, 12/12/2016:
+# http://www.markusbe.com/2009/09/about-running-32-bit-programs-on-64-bit-ubuntu-and-shared-libraries/
+# ldd fx.sp
+#        linux-gate.so.1 =>  (0xf77d7000)
+#        libdl.so.1 => /lib/libdl.so.1 (0xf77c3000)
+#        libc.so.5 => /lib/libc.so.5 (0xf76fa000)
+
